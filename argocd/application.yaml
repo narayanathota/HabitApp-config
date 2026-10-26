@@ -46,6 +46,12 @@ spec:
       selfHeal: true    # undo manual kubectl changes (Git is the source of truth)
     syncOptions:
       - CreateNamespace=true
+    # Kubernetes rejects any pod in this namespace that is not non-root / drop-ALL / seccomp
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/audit: restricted
+        pod-security.kubernetes.io/warn: restricted
     retry:
       limit: 5
       backoff:

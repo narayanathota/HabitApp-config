@@ -1,7 +1,7 @@
 ﻿# Default values for habitapp.
 # Jenkins updates ONLY image.tag in this file (the "tag:" line below), then Argo CD syncs it.
 
-replicaCount: 2
+replicaCount: 3
 
 image:
   repository: narayanathota/habitapp

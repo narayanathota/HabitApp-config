@@ -1,11 +1,11 @@
-# Default values for habitapp.
+﻿# Default values for habitapp.
 # Jenkins updates ONLY image.tag in this file (the "tag:" line below), then Argo CD syncs it.
 
 replicaCount: 2
 
 image:
   repository: narayanathota/habitapp
-  tag: "latest"          # overwritten by Jenkins on every build (<build-number>-<git-sha>)
+  tag: "local-test"
   pullPolicy: IfNotPresent
 
 # Only needed for a private registry: create the pull secret OUTSIDE Git, then list its name here

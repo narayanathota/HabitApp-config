@@ -5,7 +5,7 @@ replicaCount: 3
 
 image:
   repository: narayanathota/habitapp
-  tag: "local-v2"
+  tag: "broken-build"
   pullPolicy: IfNotPresent
 
 # Only needed for a private registry: create the pull secret OUTSIDE Git, then list its name here

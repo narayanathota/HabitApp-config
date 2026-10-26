@@ -1,0 +1,54 @@
+# Apply once, by hand, after Argo CD is installed:
+#   kubectl apply -f argocd/application.yaml
+# After that Argo CD watches the Git repo and syncs every change on its own.
+#
+# TODO: replace the repoURL below with your own config repo URL if it differs.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: habitapp
+  namespace: argocd
+spec:
+  description: HabitApp - limited to its own repo and namespace
+  sourceRepos:
+    - https://github.com/narayanathota/HabitApp-config.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: habitapp
+  # Only Namespace is allowed at cluster level (needed for CreateNamespace=true)
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: habitapp
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: habitapp
+  source:
+    repoURL: https://github.com/narayanathota/HabitApp-config.git
+    targetRevision: main
+    path: charts/habitapp
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: habitapp
+  syncPolicy:
+    automated:
+      prune: true       # delete resources that were removed from Git
+      selfHeal: true    # undo manual kubectl changes (Git is the source of truth)
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m

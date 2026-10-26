@@ -1,0 +1,103 @@
+# Default values for habitapp.
+# Jenkins updates ONLY image.tag in this file (the "tag:" line below), then Argo CD syncs it.
+
+replicaCount: 2
+
+image:
+  repository: narayanathota/habitapp
+  tag: "latest"          # overwritten by Jenkins on every build (<build-number>-<git-sha>)
+  pullPolicy: IfNotPresent
+
+# Only needed for a private registry: create the pull secret OUTSIDE Git, then list its name here
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  name: ""
+  # The app never calls the Kubernetes API, so do not mount a token into the pod
+  automount: false
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: ""          # e.g. nginx or traefik
+  annotations: {}
+  host: habitapp.local
+  path: /
+  pathType: Prefix
+  tls: []
+
+# Non-secret application settings, rendered into a ConfigMap and injected as env vars
+config:
+  SPRING_PROFILES_ACTIVE: "prod"
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
+  # Finish in-flight requests on SIGTERM instead of dropping them (zero-downtime rollouts)
+  SERVER_SHUTDOWN: "graceful"
+  SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: "20s"
+
+# Keep a terminating pod alive briefly so the Service/kube-proxy stop routing to it first
+lifecycle:
+  preStopSleepSeconds: 10
+terminationGracePeriodSeconds: 40
+
+# Secret handling - NEVER put real values in this file.
+#  - existingSecret: name of a Secret you created yourself (kubectl create secret ...)
+#    It is optional, so the pod still starts if the Secret does not exist.
+#  - create: render a Secret from secret.data (for local demos only; values would be in Git)
+existingSecret: habitapp-secret
+secret:
+  create: false
+  data: {}
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 768Mi
+
+strategy:
+  maxSurge: 1
+  maxUnavailable: 0      # keep every pod serving during a rolling update
+
+probes:
+  startup:
+    path: /actuator/health/liveness
+    failureThreshold: 30
+    periodSeconds: 5
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

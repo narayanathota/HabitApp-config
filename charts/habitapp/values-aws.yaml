@@ -1,0 +1,8 @@
+# Overrides for the AWS server (k3s ships Traefik as the ingress controller on port 80).
+# Loaded after values.yaml by the Argo CD Application, so Jenkins only ever edits values.yaml.
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""          # no hostname: the app answers on http://<server-ip>/
+  path: /

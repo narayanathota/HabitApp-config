@@ -37,6 +37,7 @@ spec:
     helm:
       valueFiles:
         - values.yaml
+        - values-aws.yaml   # ingress on the k3s server (Traefik); later file wins
   destination:
     server: https://kubernetes.default.svc
     namespace: habitapp

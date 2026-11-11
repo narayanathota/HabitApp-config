@@ -22,7 +22,7 @@ HabitApp repo --> Jenkins (build, test, scan, image, push)
 
 ## How a deployment happens
 
-1. Jenkins builds `narayanathota/habitapp:<build-number>-<git-sha>` and pushes it to Docker Hub.
+1. Jenkins builds `narayanababut/habitapp:<build-number>-<git-sha>` and pushes it to Docker Hub.
 2. Jenkins changes only the `image.tag` line in `charts/habitapp/values.yaml` and pushes the commit here.
 3. Argo CD sees the new commit and syncs the cluster (rolling update, no downtime).
 4. To roll back, `git revert` the tag commit. Argo CD syncs the previous version.

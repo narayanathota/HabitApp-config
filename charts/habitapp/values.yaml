@@ -5,7 +5,7 @@ replicaCount: 2
 
 image:
   repository: narayanababut/habitapp
-  tag: "5-408654b"
+  tag: "6-408654b"
   pullPolicy: IfNotPresent
 
 # Only needed for a private registry: create the pull secret OUTSIDE Git, then list its name here
